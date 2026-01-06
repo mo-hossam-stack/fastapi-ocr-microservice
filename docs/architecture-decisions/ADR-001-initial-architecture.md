@@ -13,7 +13,7 @@ We have decided to build a **standalone Microservice** using **FastAPI** wrappin
 1. **Direct Integration (Celery Task in Django)**:
    - *Pros*: Simpler infrastructure.
    - *Cons*: Heavy dependencies (`tesseract-dev`) would pollute the main app environment; scaling the OCR worker independently is harder.
-   
+
 2. **Serverless Function (AWS Lambda/GCP Cloud Run)**:
    - *Pros*: Infinite scaling.
    - *Cons*: "Cold start" latency concerns with heavy ML binaries.

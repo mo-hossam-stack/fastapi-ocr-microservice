@@ -35,10 +35,10 @@ graph LR
 ## 4. Non-Functional Requirements
 
 - **Scalability**: Stateless structure to allow horizontal scaling.
-- **Security**: 
+- **Security**:
   - Token-based authentication (Bearer Schema).
   - Validation via Pydantic.
-- **Performance**: 
+- **Performance**:
   - Low-latency text extraction.
   - Non-blocking I/O for file uploads.
 

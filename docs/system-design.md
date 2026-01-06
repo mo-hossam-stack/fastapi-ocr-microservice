@@ -24,7 +24,7 @@ graph TB
         FastAPI[FastAPI App]
         Tesseract[Tesseract Binary]
     end
-    
+
     Request[HTTP Request] --> Gunicorn
     Gunicorn --> Uvicorn
     Uvicorn --> FastAPI

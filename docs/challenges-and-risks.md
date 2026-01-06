@@ -8,7 +8,7 @@ This document outlines the technical challenges and risks identified during the 
 **Risk**: High
 The planned integration of `pytesseract` involves a blocking CPU-bound operation.
 - **Anticipated Impact**: Running blocking code in an `async` FastAPI route without waiting in a separate thread pool will freeze the event loop, causing timeouts for concurrent requests.
-- **Mitigation Strategy**: 
+- **Mitigation Strategy**:
   - Ensure the implementation uses `run_in_executor` or relies on multiple worker processes (Gunicorn) to limit the blast radius of a single blocked worker.
 
 ### 1.2 Tesseract Dependency Management
