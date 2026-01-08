@@ -6,3 +6,5 @@ pytest
 requests
 httpx
 pre-commit
+pydantic-settings
+python-dotenv
