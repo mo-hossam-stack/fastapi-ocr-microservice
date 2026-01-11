@@ -50,6 +50,7 @@ def home_detail_view():
 async def image_upload_view(file: UploadFile = File(...), settings:Settings = Depends(get_settings)):
     if not settings.echo_active:
         raise HTTPException(status_code=400 , detail="Uploading is disabled.")
+    UPLOAD_DIR.mkdir(exist_ok=True)
     bytes_str = io.BytesIO(await file.read()) # read file as bytes
     fname = pathlib.Path(file.filename)
     fext = fname.suffix # get file extension like .jpg , .png etc.....:)
