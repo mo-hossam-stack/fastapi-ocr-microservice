@@ -5,7 +5,8 @@ from fastapi import (FastAPI,
                     Request ,
                     Depends,
                     File,
-                    UploadFile)
+                    UploadFile,
+                    HTTPException)
 from fastapi.responses import HTMLResponse , FileResponse
 from fastapi.templating import Jinja2Templates
 from pydantic_settings import BaseSettings
@@ -13,7 +14,7 @@ from functools import lru_cache
 
 class Settings(BaseSettings):
     DEBUG: bool = False
-
+    echo_active: bool = False
     class Config:
         env_file = ".env"
 
@@ -46,7 +47,9 @@ def home_detail_view():
     return {"hi": "Mohamed"}
 
 @app.post("/image-upload/" , response_class=FileResponse)
-async def image_upload_view(file: UploadFile = File(...)):
+async def image_upload_view(file: UploadFile = File(...), settings:Settings = Depends(get_settings)):
+    if not settings.echo_active:
+        raise HTTPException(status_code=400 , detail="Uploading is disabled.")
     bytes_str = io.BytesIO(await file.read()) # read file as bytes
     fname = pathlib.Path(file.filename)
     fext = fname.suffix # get file extension like .jpg , .png etc.....:)

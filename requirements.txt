@@ -9,3 +9,5 @@ pre-commit
 pydantic-settings
 python-dotenv
 python-multipart
+aiofiles
+Pillow
