@@ -5,12 +5,11 @@ This document outlines the implementation plan and future vision for the **FastA
 ## Phase 1: MVP (Minimum Viable Product)
 **Goal**: Functional OCR service deployed to a single container.
 
-- [ ] **Scaffold Project Structure**: Setup `app/`, `requirements.txt`, `Dockerfile`.
-- [ ] **Core Endpoint**: Implement `POST /` for `pytesseract` integration.
-- [ ] **Image Echo**: Implement `POST /img-echo/` for debugging.
+- [✔️] **Scaffold Project Structure**: Setup `app/`, `requirements.txt`, `Dockerfile`.
+- [✔️] **Core Endpoint**: Implement `POST /` for `pytesseract` integration.
+- [✔️] **Image Echo**: Implement `POST /image-upload/` for debugging.
 - [ ] **Authentication**: Implement dependency for Bearer token validation.
-- [ ] **Docker Config**: Write production-ready `Dockerfile` and `entrypoint.sh`.
-
+- [✔️] **Docker Config**: Write production-ready `Dockerfile` and `entrypoint.sh`.
 
 ## Phase 2: Optimizations (Post-Launch)
 **Goal**: Performance tuning.

@@ -55,10 +55,10 @@ graph LR
 
 | Feature | Status | Notes |
 | :--- | :--- | :--- |
-| Core OCR Endpoint | 📅 Planned | `POST /` to be implemented. |
-| Image Echo Endpoint | 📅 Planned | `POST /img-echo/` debugging tool. |
+| Core OCR Endpoint | implemented | `POST /` to be implemented. |
+| Image Echo Endpoint | implemented | `POST /img-echo/` debugging tool. |
+| Docker Support | implemented | `Dockerfile` to be created. |
 | Authentication | 📅 Planned | Shared Token logic. |
-| Docker Support | 📅 Planned | `Dockerfile` to be created. |
 | CI/CD | 📅 Planned | Initial setup pending. |
 
 ## 7. Documentation Index
