@@ -5,15 +5,15 @@ import time
 import io
 from PIL import Image, ImageChops
 client = TestClient(app)
-
+from app.main import get_settings
 def test_get_home():
     response = client.get("/") # request.get("") // python request package
     assert response.status_code == 200
     assert "text/html" in response.headers['content-type']
 
-def test_home_home():
+def test_invalid_file_upload():
     response = client.post("/") # request.post("") // python request package
-    assert response.status_code == 200
+    assert response.status_code == 422
     assert "application/json" in response.headers['content-type']
 
 def test_echo_upload():
@@ -54,3 +54,23 @@ def test_echo_upload():
             assert difference is None
 
     shutil.rmtree(UPLOAD_DIR)
+
+def test_prediction_upload():
+    img_saved_path = BASE_DIR / "images"
+    settings = get_settings()
+    for path in img_saved_path.glob("*"):
+        try:
+            img = Image.open(path)
+        except:
+            img = None
+        response = client.post("/", files={"file": open(path, "rb")}
+        )
+        if img is None:
+            assert response.status_code == 400
+        else:
+            # Returning a valid image
+            assert response.status_code == 200
+            data = response.json()
+            assert len(data.keys()) == 2
+
+

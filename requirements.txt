@@ -11,3 +11,4 @@ python-dotenv
 python-multipart
 aiofiles
 Pillow
+pytesseract
