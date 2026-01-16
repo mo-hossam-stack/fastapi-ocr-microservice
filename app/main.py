@@ -6,7 +6,8 @@ from fastapi import (FastAPI,
                     Depends,
                     File,
                     UploadFile,
-                    HTTPException)
+                    HTTPException,
+                    Header)
 from fastapi.responses import HTMLResponse , FileResponse
 from fastapi.templating import Jinja2Templates
 from pydantic_settings import BaseSettings
@@ -16,6 +17,9 @@ import pytesseract
 class Settings(BaseSettings):
     DEBUG: bool = False
     echo_active: bool = False
+    app_auth_token: str
+    app_auth_token_secret: str = None
+    skip_auth: bool = False
     class Config:
         env_file = ".env"
 
@@ -41,10 +45,23 @@ def home_view(request : Request , settings:Settings = Depends(get_settings)): # 
 
     #return render("home.html" , {}) something like that dose not work  btw i try it for the first time with fastapi
 
+def verify_auth(authorization = Header(None), settings:Settings = Depends(get_settings)):
+    """
+    Authorization: Bearer <token>
+    {"authorization": "Bearer <token>"}
+    """
+    if settings.DEBUG and settings.skip_auth:
+        return
+    if authorization is None:
+        raise HTTPException(detail="Invalid endpoint", status_code=401)
+    label, token = authorization.split()
+    if token != settings.app_auth_token:
+        raise HTTPException(detail="Invalid endpoint", status_code=401)
 
 
 @app.post("/")
-async def prediction_view(file:UploadFile = File(...), settings:Settings = Depends(get_settings)):
+async def prediction_view(file:UploadFile = File(...), authorization = Header(None), settings:Settings = Depends(get_settings)):
+    verify_auth(authorization, settings)
     bytes_str = io.BytesIO(await file.read())
     try:
         img = Image.open(bytes_str)
