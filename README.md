@@ -58,7 +58,7 @@ graph LR
 | Core OCR Endpoint | implemented | `POST /` to be implemented. |
 | Image Echo Endpoint | implemented | `POST /img-echo/` debugging tool. |
 | Docker Support | implemented | `Dockerfile` to be created. |
-| Authentication | 📅 Planned | Shared Token logic. |
+| Authentication | implemented | Shared Token logic. |
 | CI/CD | 📅 Planned | Initial setup pending. |
 
 ## 7. Documentation Index

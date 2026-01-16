@@ -7,8 +7,8 @@ This document outlines the implementation plan and future vision for the **FastA
 
 - [✔️] **Scaffold Project Structure**: Setup `app/`, `requirements.txt`, `Dockerfile`.
 - [✔️] **Core Endpoint**: Implement `POST /` for `pytesseract` integration.
-- [✔️] **Image Echo**: Implement `POST /image-upload/` for debugging.
-- [ ] **Authentication**: Implement dependency for Bearer token validation.
+- [✔️] **Image Upload**: Implement `POST /image-upload/` for debugging.
+- [✔️] **Authentication**: Implement dependency for Bearer token validation.
 - [✔️] **Docker Config**: Write production-ready `Dockerfile` and `entrypoint.sh`.
 
 ## Phase 2: Optimizations (Post-Launch)
