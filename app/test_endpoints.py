@@ -55,6 +55,20 @@ def test_echo_upload():
 
     shutil.rmtree(UPLOAD_DIR)
 
+def test_prediction_upload_missing_headers():
+    img_saved_path = BASE_DIR / "images"
+    settings = get_settings()
+    for path in img_saved_path.glob("*"):
+        try:
+            img = Image.open(path)
+        except:
+            img = None
+        response = client.post("/",
+            files={"file": open(path, 'rb')}
+        )
+        assert response.status_code == 401
+
+
 def test_prediction_upload():
     img_saved_path = BASE_DIR / "images"
     settings = get_settings()
@@ -63,7 +77,8 @@ def test_prediction_upload():
             img = Image.open(path)
         except:
             img = None
-        response = client.post("/", files={"file": open(path, "rb")}
+        response = client.post("/", files={"file": open(path, "rb")},
+                                    headers={"Authorization": f"JWT {settings.app_auth_token}"}
         )
         if img is None:
             assert response.status_code == 400
