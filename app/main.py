@@ -1,6 +1,7 @@
 import pathlib
 import io
 import uuid
+import asyncio
 from fastapi import (FastAPI,
                     Request ,
                     Depends,
@@ -67,7 +68,12 @@ async def prediction_view(file:UploadFile = File(...), authorization = Header(No
         img = Image.open(bytes_str)
     except:
         raise HTTPException(detail="Invalid image", status_code=400)
-    preds = pytesseract.image_to_string(img)
+
+    # Offload blocking OCR call to thread pool to prevent event loop blocking
+    # Using run_in_executor for Python 3.8 compatibility (asyncio.to_thread requires 3.9+)
+    loop = asyncio.get_running_loop()
+    preds = await loop.run_in_executor(None, pytesseract.image_to_string, img)
+
     predictions = [x for x in preds.split("\n")]
     return {"results": predictions, "original": preds}
 
