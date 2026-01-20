@@ -15,6 +15,17 @@ from pydantic_settings import BaseSettings
 from functools import lru_cache
 from PIL import Image
 import pytesseract
+
+
+# Authentication Error Messages (API Contract)
+# These messages are part of the public API contract and should be versioned
+class AuthErrorMessages:
+    MISSING_AUTHORIZATION_HEADER = "Missing authorization header"
+    INVALID_AUTHORIZATION_FORMAT = "Invalid authorization format"
+    INVALID_AUTHORIZATION_TOKEN = "Invalid authorization token"
+    DEBUG_BYPASS_ACTIVE = "Debug mode: authentication bypassed"  # For logging only
+
+
 class Settings(BaseSettings):
     DEBUG: bool = False
     echo_active: bool = False
@@ -48,16 +59,44 @@ def home_view(request : Request , settings:Settings = Depends(get_settings)): # 
 
 def verify_auth(authorization = Header(None), settings:Settings = Depends(get_settings)):
     """
-    Authorization: Bearer <token>
-    {"authorization": "Bearer <token>"}
+    Verify Bearer token authentication.
+
+    Authorization header format: "Bearer <token>"
+
+    Security: Debug bypass requires BOTH DEBUG=True AND skip_auth=True.
+    This prevents accidental bypass in production.
     """
+    # SECURITY: Debug bypass only allowed when BOTH conditions are true
+    # This prevents accidental bypass if skip_auth=True but DEBUG=False (production)
     if settings.DEBUG and settings.skip_auth:
+        # WARNING: Authentication is bypassed in debug mode
+        # This should NEVER happen in production
         return
-    if authorization is None:
-        raise HTTPException(detail="Invalid endpoint", status_code=401)
-    label, token = authorization.split()
+
+    # Defensive: Check for missing header
+    if authorization is None or authorization == "":
+        raise HTTPException(
+            detail=AuthErrorMessages.MISSING_AUTHORIZATION_HEADER,
+            status_code=401
+        )
+
+    # Defensive: Validate format before split
+    parts = authorization.split()
+    if len(parts) != 2:
+        raise HTTPException(
+            detail=AuthErrorMessages.INVALID_AUTHORIZATION_FORMAT,
+            status_code=401
+        )
+
+    # Defensive: Explicit unpacking after validation
+    label, token = parts
+
+    # Validate token
     if token != settings.app_auth_token:
-        raise HTTPException(detail="Invalid endpoint", status_code=401)
+        raise HTTPException(
+            detail=AuthErrorMessages.INVALID_AUTHORIZATION_TOKEN,
+            status_code=401
+        )
 
 
 @app.post("/")
