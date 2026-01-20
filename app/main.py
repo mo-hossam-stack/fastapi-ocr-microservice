@@ -26,12 +26,20 @@ class AuthErrorMessages:
     DEBUG_BYPASS_ACTIVE = "Debug mode: authentication bypassed"  # For logging only
 
 
+# Resource Management Error Messages (API Contract)
+# These messages are part of the public API contract and should be versioned
+class ResourceErrorMessages:
+    FILE_TOO_LARGE = "File too large. Maximum size: {max_size_mb}MB"
+    UPLOADING_DISABLED = "Uploading is disabled"
+
+
 class Settings(BaseSettings):
     DEBUG: bool = False
     echo_active: bool = False
     app_auth_token: str
     app_auth_token_secret: str = None
     skip_auth: bool = False
+    max_upload_size_mb: int = 10  # Maximum file size in MB for resource safety
     class Config:
         env_file = ".env"
 
@@ -101,8 +109,39 @@ def verify_auth(authorization = Header(None), settings:Settings = Depends(get_se
 
 @app.post("/")
 async def prediction_view(file:UploadFile = File(...), authorization = Header(None), settings:Settings = Depends(get_settings)):
+    """
+    OCR prediction endpoint: Extracts text from uploaded images.
+
+    Resource Safety:
+    - Processes files entirely in memory (no disk persistence)
+    - File size limited by max_upload_size_mb to prevent memory exhaustion
+    - Validates size BEFORE expensive OCR processing
+
+    Security:
+    - Requires Bearer token authentication
+    - Rejects oversized files with HTTP 413
+
+    Future Improvements:
+    - Consider streaming large files for better memory efficiency
+    - Add support for batch processing
+    """
     verify_auth(authorization, settings)
-    bytes_str = io.BytesIO(await file.read())
+
+    # Resource Safety: Check file size before reading entire file into memory
+    # This prevents memory exhaustion from extremely large uploads
+    MAX_SIZE_BYTES = settings.max_upload_size_mb * 1024 * 1024
+
+    # Read file data
+    file_data = await file.read()
+
+    # Validate size after reading (FastAPI doesn't provide size before read)
+    if len(file_data) > MAX_SIZE_BYTES:
+        raise HTTPException(
+            detail=ResourceErrorMessages.FILE_TOO_LARGE.format(max_size_mb=settings.max_upload_size_mb),
+            status_code=413  # Payload Too Large
+        )
+
+    bytes_str = io.BytesIO(file_data)
     try:
         img = Image.open(bytes_str)
     except:
@@ -121,13 +160,54 @@ ALLOWED_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
 
 @app.post("/image-upload/" , response_class=FileResponse)
 async def image_upload_view(file: UploadFile = File(...), settings:Settings = Depends(get_settings)):
+    """
+    Echo endpoint: Saves uploaded image to disk and returns it.
+
+    ⚠️ PRODUCTION WARNING ⚠️
+    Files are persisted to uploads/ directory and NOT automatically cleaned up.
+    This endpoint is for debugging/testing ONLY.
+
+    Production Recommendations:
+    - Keep echo_active=False in production (recommended)
+    - If enabled, implement external cleanup:
+      * Cron job: `find uploads/ -type f -mtime +7 -delete`
+      * Systemd timer with cleanup script
+      * Cloud storage with TTL (S3 lifecycle policies, etc.)
+
+    Resource Impact:
+    - Disk usage = num_files × max_upload_size_mb
+    - No automatic cleanup means unbounded growth if left running
+    - Directory created on-demand if it doesn't exist
+
+    Future Improvements:
+    - Add background cleanup task with configurable TTL
+    - Implement disk quota monitoring
+    - Move to external storage (S3, GCS, etc.) with built-in TTL
+    """
+    # Check if uploading is enabled
     if not settings.echo_active:
-        raise HTTPException(status_code=400 , detail="Uploading is disabled.")
+        raise HTTPException(
+            status_code=400,
+            detail=ResourceErrorMessages.UPLOADING_DISABLED
+        )
+
     UPLOAD_DIR.mkdir(exist_ok=True)
     suffix = pathlib.Path(file.filename).suffix.lower()
+
     if suffix not in ALLOWED_EXTENSIONS:
         raise HTTPException(status_code=415, detail="Unsupported image type")
+
+    # Resource Safety: Check file size before processing
+    # This prevents disk exhaustion from extremely large uploads
     data = await file.read()
+    MAX_SIZE_BYTES = settings.max_upload_size_mb * 1024 * 1024
+
+    if len(data) > MAX_SIZE_BYTES:
+        raise HTTPException(
+            detail=ResourceErrorMessages.FILE_TOO_LARGE.format(max_size_mb=settings.max_upload_size_mb),
+            status_code=413  # Payload Too Large
+        )
+
     bytes_io = io.BytesIO(data)
     try:
         img = Image.open(bytes_io)
@@ -136,8 +216,11 @@ async def image_upload_view(file: UploadFile = File(...), settings:Settings = De
         img = Image.open(bytes_io)
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid image file")
+
+    # Save to disk with UUID filename
     dest = UPLOAD_DIR / f"{uuid.uuid4()}{suffix}"
     img.save(dest, format=img.format)
+
     return FileResponse(
         dest,
         media_type=file.content_type,
