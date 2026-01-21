@@ -3,8 +3,13 @@ from fastapi.testclient import TestClient
 import shutil
 import time
 import io
+import pytest
+from unittest.mock import patch
 from PIL import Image, ImageChops
+
 client = TestClient(app)
+
+MOCK_OCR_RESULT = "This is a mocked OCR result"
 
 
 def test_get_home():
@@ -74,7 +79,9 @@ def test_prediction_upload_missing_headers():
         assert response.json()["detail"] == AuthErrorMessages.MISSING_AUTHORIZATION_HEADER
 
 
-def test_prediction_upload():
+@patch("app.main.pytesseract.image_to_string")
+def test_prediction_upload(mock_ocr):
+    mock_ocr.return_value = MOCK_OCR_RESULT
     img_saved_path = BASE_DIR / "images"
     settings = get_settings()
     for path in img_saved_path.glob("*"):
@@ -91,7 +98,37 @@ def test_prediction_upload():
             # Returning a valid image
             assert response.status_code == 200
             data = response.json()
-            assert len(data.keys()) == 2
+            assert data["results"][0] == MOCK_OCR_RESULT
+            assert data["original"] == MOCK_OCR_RESULT
+
+
+@pytest.mark.integration
+def test_prediction_upload_integration():
+    """Integration test: validates full OCR path with real pytesseract execution."""
+    img_saved_path = BASE_DIR / "images"
+    settings = get_settings()
+
+    # Use one valid image for integration test
+    test_image = None
+    for path in img_saved_path.glob("*"):
+        try:
+            Image.open(path)
+            test_image = path
+            break
+        except:
+            continue
+
+    if test_image is None:
+        pytest.skip("No valid test images found for integration test")
+
+    response = client.post("/", files={"file": open(test_image, "rb")},
+                                headers={"Authorization": f"JWT {settings.app_auth_token}"}
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert "results" in data
+    assert "original" in data
+
 
 
 def test_malformed_authorization_headers():
