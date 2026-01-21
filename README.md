@@ -2,7 +2,7 @@
 
 ## 1. Project Overview
 
-The **FastAPI OCR Microservice** is a proposed lightweight service designed to extract text from images using Optical Character Recognition (OCR). It is intended to serve as a high-performance utility component for the "Try Django 3.2" ecosystem.
+The **FastAPI OCR Microservice** is a proposed lightweight service designed to extract text from images using Optical Character Recognition (OCR). It is intended to serve as a high-performance utility component.
 
 Key planned capabilities:
 - **Image-to-Text Conversion**: API to accept image uploads and return extracted text.
