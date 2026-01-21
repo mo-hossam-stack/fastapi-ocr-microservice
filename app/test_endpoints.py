@@ -258,6 +258,68 @@ def test_upload_directory_bounded_growth():
     assert hasattr(ResourceErrorMessages, 'FILE_TOO_LARGE'), "ResourceErrorMessages should have FILE_TOO_LARGE"
 
 
+def test_health_ready_endpoints():
+    """Verify built-in monitoring endpoints."""
+    # Health check
+    response = client.get("/health")
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
+
+    # Readiness check (requires tesseract installed for success)
+    response = client.get("/ready")
+    if response.status_code == 200:
+        assert response.json()["status"] == "ready"
+        assert "tesseract_version" in response.json()
+    else:
+        # If tesseract is missing in test environment, it should be 503
+        assert response.status_code == 503
+
+
+@pytest.mark.parametrize("anyio_backend", ["asyncio"])
+@pytest.mark.anyio
+async def test_run_ocr_helper_throws_504(anyio_backend):
+    """
+    Unit test for run_ocr helper.
+    Verifies that run_ocr uses asyncio.wait_for and raises 504 on timeout.
+    """
+    from app.main import run_ocr
+    import asyncio
+    from fastapi import HTTPException
+    from unittest.mock import MagicMock
+
+    # Mock image (unused by our mock execution)
+    mock_img = MagicMock()
+
+    # We want to force a timeout.
+    # We can mock asyncio.get_running_loop() -> loop.run_in_executor
+    # But patching 'app.main.asyncio.wait_for' is cleaner for unit logic verification
+
+    with patch("app.main.asyncio.wait_for", side_effect=asyncio.TimeoutError):
+         with pytest.raises(HTTPException) as excinfo:
+             await run_ocr(mock_img, timeout=0.1)
+
+         assert excinfo.value.status_code == 504
+         assert excinfo.value.detail == ResourceErrorMessages.TIMEOUT
+
+def test_oversized_upload_content_length():
+    """Test that oversized files are rejected via Content-Length BEFORE reading."""
+    settings = get_settings()
+    MAX_SIZE_BYTES = settings.max_upload_size_mb * 1024 * 1024
+
+    # We send a request with a large Content-Length header but small body
+    # to verify the proactive check triggers correctly.
+    response = client.post(
+        "/",
+        files={"file": ("small.png", b"small-content", "image/png")},
+        headers={
+            "Authorization": f"Bearer {settings.app_auth_token}",
+            "Content-Length": str(MAX_SIZE_BYTES + 100)
+        }
+    )
+    assert response.status_code == 413
+    assert str(settings.max_upload_size_mb) in response.json()["detail"]
+
+
 def test_echo_active_disabled():
     """Test that upload endpoint rejects requests when echo_active=False."""
     settings = get_settings()
