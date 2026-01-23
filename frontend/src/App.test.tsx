@@ -27,7 +27,8 @@ describe('App Integration', () => {
 
         // Status Badge checks (polling happens on mount)
         await waitFor(() => {
-            expect(screen.getByText(/Health: OK/i)).toBeInTheDocument();
+            const systemLabel = screen.getByText(/System:/i);
+            expect(systemLabel.parentElement).toHaveTextContent(/OK/i);
         });
     });
 
