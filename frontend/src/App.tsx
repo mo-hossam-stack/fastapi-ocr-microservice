@@ -16,13 +16,13 @@ function App() {
         <div className="absolute bottom-[-20%] left-[20%] w-[50%] h-[50%] rounded-full bg-purple-400/20 blur-[120px] mix-blend-multiply animate-blob animation-delay-4000"></div>
       </div>
 
-      <header className="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-xl border-b border-slate-200/60 shadow-sm transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="bg-gradient-to-tr from-indigo-500 to-blue-600 rounded-lg p-1.5 shadow-lg shadow-indigo-500/20">
-              <span className="text-xl text-white">🔍</span>
+      <header className="fixed top-0 w-full z-50 bg-white/40 backdrop-blur-2xl border-b border-slate-200/50 shadow-sm transition-all duration-500">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="bg-gradient-to-br from-indigo-600 via-indigo-500 to-blue-600 rounded-xl p-2 shadow-xl shadow-indigo-500/20 transform hover:rotate-3 transition-transform duration-300">
+              <span className="text-2xl text-white">🔍</span>
             </div>
-            <h1 className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-800 to-slate-600">
+            <h1 className="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600">
               OCR Service
             </h1>
           </div>
@@ -30,29 +30,29 @@ function App() {
         </div>
       </header>
 
-      <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-12 min-h-screen flex flex-col items-center">
+      <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-16 min-h-screen flex flex-col items-center">
 
-        <div className="text-center mb-12 max-w-2xl mx-auto space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
-          <span className="inline-block py-1 px-3 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 text-xs font-semibold tracking-wide uppercase shadow-sm">
-            AI-Powered Extraction
+        <div className="text-center mb-16 max-w-3xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-6 duration-1000">
+          <span className="inline-flex items-center py-1.5 px-4 rounded-full bg-indigo-50/80 border border-indigo-100/50 text-indigo-600 text-[0.7rem] font-bold tracking-[0.2em] uppercase shadow-sm backdrop-blur-sm">
+            AI-Powered Text Extraction
           </span>
-          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900">
-            Transform Images into <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-500">Text</span>
+          <h2 className="text-5xl md:text-7xl font-black tracking-tight text-slate-900 leading-[1.1]">
+            Transform Images into <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-blue-500 to-cyan-400">Digital Text</span>
           </h2>
-          <p className="text-lg text-slate-500 leading-relaxed">
-            Upload any document, receipt, or screenshot. Our microservice instantly extracts the content using high-performance OCR.
+          <p className="text-xl text-slate-500 leading-relaxed font-medium">
+            Upload any document, receipt, or screenshot. Our microservice instantly extracts the content using high-performance OCR with pixel-perfect accuracy.
           </p>
         </div>
 
         {error && (
-          <div className="w-full max-w-xl mx-auto mb-8 animate-in fade-in zoom-in-95 duration-300">
-            <div className="p-4 bg-red-50/80 backdrop-blur-sm border border-red-200/60 rounded-xl shadow-sm flex items-start gap-4">
-              <div className="p-2 bg-red-100 rounded-full shrink-0 text-red-600">
-                ⚠️
+          <div className="w-full max-w-2xl mx-auto mb-12 animate-in fade-in zoom-in-95 duration-500">
+            <div className="p-6 bg-red-50/60 backdrop-blur-md border border-red-200/50 rounded-2xl shadow-xl shadow-red-500/5 flex items-start gap-5">
+              <div className="p-3 bg-red-100/80 rounded-xl shadow-inner text-red-600 transform hover:scale-110 transition-transform">
+                <span className="text-xl">⚠️</span>
               </div>
-              <div>
-                <h3 className="text-sm font-bold text-red-900">Extraction Failed</h3>
-                <p className="text-sm text-red-700 mt-1 leading-relaxed">{error}</p>
+              <div className="space-y-1">
+                <h3 className="text-base font-bold text-red-900">Extraction Failed</h3>
+                <p className="text-sm text-red-700/90 leading-relaxed font-medium">{error}</p>
               </div>
             </div>
           </div>

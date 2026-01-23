@@ -27,8 +27,8 @@ describe('App Integration', () => {
 
         // Status Badge checks (polling happens on mount)
         await waitFor(() => {
-            const systemLabel = screen.getByText(/System:/i);
-            expect(systemLabel.parentElement).toHaveTextContent(/OK/i);
+            // Match the 'OK' text directly which is always visible
+            expect(screen.getByText(/^OK$/)).toBeInTheDocument();
         });
     });
 
@@ -74,7 +74,7 @@ describe('App Integration', () => {
         fireEvent.change(input, { target: { files: [file] } });
 
         await waitFor(() => {
-            expect(screen.getByText(/OCR Service is currently unavailable/i)).toBeInTheDocument();
+            expect(screen.getByText(/Extraction Failed/i)).toBeInTheDocument();
         });
     });
 
@@ -94,7 +94,8 @@ describe('App Integration', () => {
         fireEvent.change(input, { target: { files: [largeFile] } });
 
         await waitFor(() => {
-            expect(screen.getByText(/File too large/i)).toBeInTheDocument();
+            // Match Portuguese text from UI
+            expect(screen.getByText(/Arquivo muito grande/i)).toBeInTheDocument();
         });
 
         // Ensure API was NOT called

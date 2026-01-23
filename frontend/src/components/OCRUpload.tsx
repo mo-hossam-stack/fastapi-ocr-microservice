@@ -61,20 +61,20 @@ export const OCRUpload: React.FC<OCRUploadProps> = ({ onUpload, isLoading }) => 
     };
 
     return (
-        <div className="w-full max-w-xl mx-auto relative group">
+        <div className="w-full max-w-2xl mx-auto relative group">
             {/* Glow Effect */}
             <div className={clsx(
-                "absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500",
-                dragActive && "opacity-60 blur-md"
+                "absolute -inset-1 bg-gradient-to-r from-indigo-500 via-blue-500 to-cyan-400 rounded-3xl blur opacity-10 group-hover:opacity-30 transition duration-1000",
+                dragActive && "opacity-50 blur-xl"
             )}></div>
 
             <div
                 className={clsx(
-                    "relative bg-white/80 backdrop-blur-xl border-2 rounded-xl p-12 text-center transition-all duration-300 ease-out cursor-pointer shadow-xl",
+                    "relative bg-white/60 backdrop-blur-2xl border-2 border-dashed rounded-2xl p-16 text-center transition-all duration-500 ease-out cursor-pointer shadow-2xl",
                     dragActive
-                        ? "border-indigo-500 bg-indigo-50/50 scale-[1.02]"
-                        : "border-slate-200/60 hover:border-indigo-300 hover:shadow-2xl",
-                    isLoading && "opacity-50 pointer-events-none grayscale"
+                        ? "border-indigo-500 bg-indigo-50/30 scale-[1.02] shadow-indigo-500/10"
+                        : "border-slate-200/50 hover:border-indigo-300/50 hover:shadow-indigo-500/5",
+                    isLoading && "opacity-50 pointer-events-none grayscale blur-sm"
                 )}
                 onDragEnter={onDrag}
                 onDragLeave={onDrag}
@@ -92,30 +92,32 @@ export const OCRUpload: React.FC<OCRUploadProps> = ({ onUpload, isLoading }) => 
                     aria-label="Upload image"
                 />
 
-                <div className="space-y-6">
+                <div className="space-y-8">
                     <div className={clsx(
-                        "w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-indigo-100 to-blue-50 flex items-center justify-center text-4xl shadow-inner transition-transform duration-300",
-                        dragActive ? "scale-110 rotate-12" : "group-hover:scale-105"
+                        "w-24 h-24 mx-auto rounded-3xl bg-gradient-to-br from-indigo-50 to-blue-50/50 flex items-center justify-center text-5xl shadow-inner border border-white/50 transition-all duration-500",
+                        dragActive ? "scale-110 rotate-6 shadow-indigo-200" : "group-hover:scale-105 group-hover:-rotate-3"
                     )}>
-                        <span className="drop-shadow-sm">📄</span>
+                        <span className="drop-shadow-lg filter group-hover:drop-shadow-indigo-500/20">📄</span>
                     </div>
 
-                    <div className="space-y-2">
-                        <h3 className="text-xl font-bold text-slate-800">
-                            {isLoading ? 'Uploading...' : 'Upload Document'}
+                    <div className="space-y-3">
+                        <h3 className="text-2xl font-black text-slate-800 tracking-tight">
+                            {isLoading ? 'Processing...' : 'Upload Document'}
                         </h3>
-                        <p className="text-slate-500 font-medium">
-                            Drag & drop or <span className="text-indigo-600 underline underline-offset-2">browse</span>
+                        <p className="text-slate-500 font-medium text-lg">
+                            Drag & drop or <span className="text-indigo-600 underline underline-offset-4 decoration-2 decoration-indigo-200 hover:decoration-indigo-500 transition-all">browse files</span>
                         </p>
-                        <p className="text-xs text-slate-400 font-mono pt-2">
-                            SUPPORTED: PNG, JPG, WEBP (MAX 10MB)
-                        </p>
+                        <div className="pt-4 flex items-center justify-center gap-4">
+                            <span className="px-3 py-1 bg-slate-100/50 rounded-lg text-[0.65rem] font-bold text-slate-400 uppercase tracking-widest border border-slate-200/50">PNG, JPG, WEBP</span>
+                            <span className="px-3 py-1 bg-indigo-50/50 rounded-lg text-[0.65rem] font-bold text-indigo-400 uppercase tracking-widest border border-indigo-100/50">MAX 10MB</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
             {validationError && (
-                <div className="absolute top-full left-0 right-0 mt-4 p-4 bg-red-50/90 backdrop-blur border border-red-200 text-red-700 rounded-xl text-sm shadow-lg animate-in slide-in-from-top-2 text-center font-medium">
+                <div className="absolute -bottom-16 left-0 right-0 p-4 bg-red-50/90 backdrop-blur-xl border border-red-200/50 text-red-700 rounded-2xl text-sm shadow-2xl shadow-red-500/10 animate-in slide-in-from-top-4 duration-500 text-center font-bold flex items-center justify-center gap-2">
+                    <span className="bg-red-100 p-1 rounded-full text-xs">⚠️</span>
                     {validationError}
                 </div>
             )}

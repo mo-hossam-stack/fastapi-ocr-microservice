@@ -1,6 +1,7 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+/* Tailwind 4 uses standard CSS variables and imports */
 
 @layer utilities {
     .animation-delay-2000 {
