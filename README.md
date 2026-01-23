@@ -1,69 +1,149 @@
 # FastAPI OCR Microservice
 
-## 1. Project Overview
+[![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com)
+[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+[![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+[![Tesseract OCR](https://img.shields.io/badge/Tesseract-OCR-4B8BBE?style=for-the-badge&logo=tesseract&logoColor=white)](https://github.com/tesseract-ocr/tesseract)
 
-The **FastAPI OCR Microservice** is a proposed lightweight service designed to extract text from images using Optical Character Recognition (OCR). It is intended to serve as a high-performance utility component.
 
-Key planned capabilities:
-- **Image-to-Text Conversion**: API to accept image uploads and return extracted text.
-- **Image Echo**: Verification endpoint to echo back uploaded images.
-- **Microservice Architecture**: To be designed for independent deployment and horizontal scaling.
+A production-grade, high-performance microservice designed for extracting text from images using **Tesseract OCR**. Built with **FastAPI** and **React**, this service offers a robust, stateless architecture with strict resource safety and modern observability.
 
-## 2. Proposed Technical Stack
+---
 
-- **Language**: Python 3.8+
-- **Framework**: FastAPI (selected for async capability and performance)
-- **OCR Engine**: Tesseract (via `pytesseract` wrapper)
-- **Server**: Uvicorn (ASGI) managed by Gunicorn.
-- **Containerization**: Docker
-- **Testing**: Pytest
+## 🚀 Getting Started
 
-## 3. High-Level Architecture (Proposed)
+You can run the entire stack (Backend + Frontend) using Docker for an orchestrated experience, or manually for local development.
 
-The system is designed to follow a synchronous request-response model, leveraging FastAPI's asynchronous capabilities for I/O bound operations.
+### 1. Orchestrated Setup (Recommended)
+This method uses **Docker Compose** to spin up both the backend and frontend in a shared network. The frontend automatically proxies requests to the backend.
 
-```mermaid
-graph LR
-    Client[Client / Django App] -- POST Image + Auth Token --> LB[Load Balancer]
-    LB -- Traffic --> API[FastAPI Instance]
-    API -- Read/Write --> FS[Ephemeral File System]
-    API -- Process --> OCR[Tesseract Engine]
-    OCR -- User Text --> API
-    API -- JSON Response --> Client
+```bash
+# 1. Clone the repository
+git clone https://github.com/mo-hossam-stack/fastapi-ocr-microservice.git
+cd fastapi-ocr-microservice
+
+# 2. Configure environment
+cp .env-example .env
+
+# 3. Start the services
+docker-compose up --build
 ```
 
-## 4. Non-Functional Requirements
+- **Frontend**: [http://localhost:3000](http://localhost:3000)
+- **Backend (API Docs)**: [http://localhost:8000/docs](http://localhost:8000/docs)
 
-- **Scalability**: Stateless structure to allow horizontal scaling.
-- **Security**:
-  - Token-based authentication (Bearer Schema).
-  - Validation via Pydantic.
-- **Performance**:
-  - Low-latency text extraction.
-  - Non-blocking I/O for file uploads.
+---
 
-## 5. Intended Workflow
+### 2. Local Development Setup
+Use this method for debugging or making changes to individual components.
 
-1. **Authentication**: Client provides `Authorization: Bearer <TOKEN>`.
-2. **Upload**: Service streams image file to memory.
-3. **Processing**: `pytesseract` processes the image buffer.
-4. **Response**: Extracted text returned as JSON.
+#### **Backend (FastAPI)**
+```bash
+# From repository root
+cd app
 
-## 6. Project Status
+# 1. Create and activate virtual environment
+python -m venv venv
+source venv/bin/activate  # Linux/macOS
 
-**Current Phase: Design & Planning**
+# 2. Install dependencies
+pip install -r ../requirements.txt
 
-| Feature | Status | Notes |
-| :--- | :--- | :--- |
-| Core OCR Endpoint | implemented | `POST /` to be implemented. |
-| Image Echo Endpoint | implemented | `POST /img-echo/` debugging tool. |
-| Docker Support | implemented | `Dockerfile` to be created. |
-| Authentication | implemented | Shared Token logic. |
-| CI/CD | 📅 Planned | Initial setup pending. |
+# 3. Setup environment
+cp ../.env-example ../.env
 
-## 7. Documentation Index
+# 4. Run the server
+uvicorn main:app --reload --port 8000
+```
 
-- [System Design](./docs/system-design.md): Detailed proposed C4 models.
-- [Architecture Decisions](./docs/architecture-decisions/): Agreed-upon design choices before implementation begins.
-- [Challenges & Risks](./docs/challenges-and-risks.md): Anticipated technical risks.
-- [Roadmap](./docs/future-improvements.md): Implementation plan and phases.
+#### **Frontend (React + Vite)**
+```bash
+# From repository root
+cd frontend
+
+# 1. Install dependencies
+npm install
+
+# 2. Start dev server
+npm run dev
+```
+- **Frontend**: [http://localhost:5173](http://localhost:5173) (Proxies `/api` to port 8000 via Vite)
+
+---
+
+## 🛠 Technical Stack
+
+### Backend
+- **Core**: FastAPI (Python 3.12+)
+- **OCR Engine**: Tesseract (via `pytesseract`)
+- **Image Processing**: Pillow (PIL)
+- **Validation**: Pydantic v2
+- **Logging**: Structured JSON Logging
+
+### Frontend
+- **Framework**: React 18 + TypeScript
+- **Styling**: Tailwind CSS
+- **API Client**: Axios with Interceptors
+- **Build Tool**: Vite
+
+### Infrastructure
+- **Containerization**: Docker (Multi-stage builds)
+- **Proxy**: Nginx (Production) / Vite Proxy (Development)
+- **Orchestration**: Docker Compose
+
+---
+
+## 🏗 System Architecture
+
+The microservice follows a stateless architecture designed for horizontal scalability and resource isolation.
+
+```mermaid
+graph TD
+    User([End User]) --> Frontend[React Frontend]
+    Frontend -- "Nginx / Vite Proxy (/api)" --> Backend[FastAPI Backend]
+
+    subgraph "Backend Instance"
+        Backend -- "Shared Secret Auth" --> Auth[Auth Layer]
+        Backend -- "Validation" --> Pydantic[Resource Safety Layer]
+        Backend -- "Offload (Thread Pool)" --> Tesseract[Tesseract Engine]
+    end
+
+    Backend -- "JSON Response" --> Frontend
+```
+
+---
+
+## 🛡️ Key Features & Engineering Rigor
+
+- **Non-Blocking OCR**: Tesseract execution is offloaded to a thread pool (`run_in_executor`) to keep the FastAPI event loop responsive.
+- **Resource Hardening**:
+  - **10MB Content Limit**: Proactive validation via `Content-Length` and reactive validation during stream reading.
+  - **30s Hard Timeout**: Prevents runaway OCR processes from saturating CPU.
+- **Stateless Design**: No persistent cache or database required for core logic, enabling instant scaling.
+- **Production Observability**: Structured JSON logging and built-in `/health` (Liveness) and `/ready` (Readiness) probes.
+- **Security**: Shared secret authentication via Bearer tokens for internal service-to-service communication.
+
+---
+
+## 📊 Documentation Index
+
+- [Architecture Decisions (ADRs)](./docs/architecture-decisions/): Logic behind the stack and design choices.
+- [System Design](./docs/system-design.md): C4 models and request lifecycles.
+
+---
+
+## 🧪 Testing
+
+The project maintains high test coverage using **Pytest**.
+
+```bash
+# Run all tests
+pytest
+
+# Run with integration tests (requires real Tesseract)
+pytest -m integration
+```
+
+---
+## 🤝 Contributing
+Contributions are welcome! Please open issues or pull requests for bug fixes, enhancements, or new features.
