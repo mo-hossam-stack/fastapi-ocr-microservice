@@ -26,7 +26,7 @@ cd fastapi-ocr-microservice
 cp .env-example .env
 
 # 3. Start the services
-docker-compose up --build
+docker compose up --build
 ```
 
 - **Frontend**: [http://localhost:3000](http://localhost:3000)
@@ -74,7 +74,7 @@ npm run dev
 ## 🛠 Technical Stack
 
 ### Backend
-- **Core**: FastAPI (Python 3.12+)
+- **Core**: FastAPI (Python 3.8+)
 - **OCR Engine**: Tesseract (via `pytesseract`)
 - **Image Processing**: Pillow (PIL)
 - **Validation**: Pydantic v2
