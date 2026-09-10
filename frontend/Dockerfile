@@ -6,6 +6,11 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
+
+ARG VITE_API_BASE_URL=/api
+ARG VITE_AUTH_TOKEN
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+ENV VITE_AUTH_TOKEN=$VITE_AUTH_TOKEN
 RUN npm run build
 
 # Stage 2: Serve with Nginx
