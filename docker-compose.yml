@@ -20,7 +20,7 @@ services:
         VITE_AUTH_TOKEN: ${APP_AUTH_TOKEN}
     container_name: ocr-frontend
     ports:
-      - "${FRONTEND_PORT:-3000}:80"
+      - "3000:80"
     environment:
       # Nginx will proxy /api -> http://backend:8000
       - API_PROXY_TARGET=http://backend:8000
