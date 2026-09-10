@@ -13,7 +13,11 @@ services:
       - ocr-network
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
+        VITE_AUTH_TOKEN: ${APP_AUTH_TOKEN}
     container_name: ocr-frontend
     ports:
       - "${FRONTEND_PORT:-3000}:80"
