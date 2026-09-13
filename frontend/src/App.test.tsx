@@ -23,12 +23,11 @@ describe('App Integration', () => {
 
     it('renders initial dashboard and health status', async () => {
         render(<App />);
-        expect(screen.getByText(/OCR Service/i)).toBeInTheDocument();
+        expect(screen.getAllByText(/RETRO/i).length).toBeGreaterThan(0);
+        expect(screen.getAllByText(/MODEL 1978/i).length).toBeGreaterThan(0);
 
-        // Status Badge checks (polling happens on mount)
         await waitFor(() => {
-            // Match the 'OK' text directly which is always visible
-            expect(screen.getByText(/^OK$/)).toBeInTheDocument();
+            expect(screen.getByText(/SYS:/i)).toBeInTheDocument();
         });
     });
 
@@ -38,20 +37,25 @@ describe('App Integration', () => {
 
         render(<App />);
 
-        // Find upload input
         const file = new File(['dummy content'], 'test.png', { type: 'image/png' });
         const input = screen.getByLabelText(/Upload image/i);
 
-        // Upload
         fireEvent.change(input, { target: { files: [file] } });
 
-        // Loading state
-        expect(screen.getByText(/Processing image/i)).toBeInTheDocument();
+        // click EXTRACT to trigger upload (retro requires explicit action)
+        const extractBtn = await screen.findByText(/EXTRACT TEXT/i);
+        fireEvent.click(extractBtn);
 
+        // loading state shows SCANNING
+        await waitFor(() => {
+            expect(screen.getByText(/SCANNING/i)).toBeInTheDocument();
+        });
         // Success state
         await waitFor(() => {
-            expect(screen.getByText(/Analysis Results/i)).toBeInTheDocument();
-            expect(screen.getByText('Line 1')).toBeInTheDocument();
+            // textarea contains editable original; search by display value
+            const ta = screen.getByDisplayValue(/Line 1/);
+            expect(ta).toBeInTheDocument();
+            expect(screen.getByText(/OUTPUT — TEXT/i)).toBeInTheDocument();
         });
     });
 
@@ -72,6 +76,8 @@ describe('App Integration', () => {
         const input = screen.getByLabelText(/Upload image/i);
 
         fireEvent.change(input, { target: { files: [file] } });
+        const extractBtn = await screen.findByText(/EXTRACT TEXT/i);
+        fireEvent.click(extractBtn);
 
         await waitFor(() => {
             expect(screen.getByText(/Extraction Failed/i)).toBeInTheDocument();
@@ -95,7 +101,7 @@ describe('App Integration', () => {
 
         await waitFor(() => {
             // Match Portuguese text from UI
-            expect(screen.getByText(/Arquivo muito grande/i)).toBeInTheDocument();
+            expect(screen.getByText(/File too large/i)).toBeInTheDocument();
         });
 
         // Ensure API was NOT called

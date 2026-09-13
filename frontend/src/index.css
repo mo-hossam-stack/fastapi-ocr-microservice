@@ -1,75 +1,50 @@
 @import "tailwindcss";
 @config "../tailwind.config.js";
 
-/* Tailwind 4 uses standard CSS variables and imports */
-
+:root{
+  --cream:#FFFBEB;
+  --paper:#FFF8E7;
+  --ink:#111110;
+  --line:#1A1A1A;
+  --mustard:#F2C94C;
+  --vermillion:#E94E36;
+  --teal:#0E9F6E;
+  --olive:#8B9A45;
+  --grid: rgba(17,17,16,0.08);
+}
+*{scrollbar-width:thin}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:var(--cream);
+  color:var(--ink);
+  font-family:"Space Mono", monospace;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--mustard)}
+button{font-family:inherit}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none !important;transition:none !important}
+}
+.grain:before{
+  content:"";
+  position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;opacity:0.6;z-index:1
+}
+.scanline{
+  background: repeating-linear-gradient(0deg, transparent 0 2px, rgba(0,0,0,0.04) 2px 3px);
+}
+.halftone{
+  background-image: radial-gradient(circle, rgba(0,0,0,0.12) 1px, transparent 1px);
+  background-size: 10px 10px;
+}
+/* keep existing utilities used by tests/new app */
 @layer utilities {
-    .animation-delay-2000 {
-        animation-delay: 2s;
-    }
-
-    .animation-delay-4000 {
-        animation-delay: 4s;
-    }
+  .animation-delay-2000{animation-delay:2s}
+  .animation-delay-4000{animation-delay:4s}
 }
-
-@keyframes blob {
-    0% {
-        transform: translate(0px, 0px) scale(1);
-    }
-
-    33% {
-        transform: translate(30px, -50px) scale(1.1);
-    }
-
-    66% {
-        transform: translate(-20px, 20px) scale(0.9);
-    }
-
-    100% {
-        transform: translate(0px, 0px) scale(1);
-    }
-}
-
-.animate-blob {
-    animation: blob 7s infinite;
-}
-
-@keyframes progress {
-    0% {
-        width: 0%;
-        margin-left: 0;
-    }
-
-    50% {
-        width: 100%;
-        margin-left: 0;
-    }
-
-    100% {
-        width: 0%;
-        margin-left: 100%;
-    }
-}
-
-.animate-progress {
-    animation: progress 2s infinite ease-in-out;
-}
-
-/* Custom Scrollbar for Terminal */
-.custom-scrollbar::-webkit-scrollbar {
-    width: 8px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-    background: #0f172a;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #334155;
-    border-radius: 4px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #475569;
-}
+.custom-scrollbar::-webkit-scrollbar{width:8px}
+.custom-scrollbar::-webkit-scrollbar-track{background:#0f172a}
+.custom-scrollbar::-webkit-scrollbar-thumb{background:#334155;border-radius:4px}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover{background:#475569}
